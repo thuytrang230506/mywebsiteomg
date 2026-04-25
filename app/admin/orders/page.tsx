@@ -25,7 +25,6 @@ export default async function AdminOrdersPage({
 
   const { data: orders } = await query
 
-  // Tách array ra khỏi JSX để tránh lỗi parse
   const filterOptions = [
     { value: '', label: 'Tất cả' },
     ...Object.entries(STATUS_MAP).map(([value, { label }]) => ({ value, label })),
@@ -35,16 +34,16 @@ export default async function AdminOrdersPage({
     <div>
       <h1 className="text-2xl font-bold mb-6">Đơn hàng</h1>
 
-      {/* Filter theo trạng thái */}
+      {/* Filter theo trạng thái - Sửa màu mediumslateblue & bo góc rounded-xl */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {filterOptions.map((opt) => (
           <a
             key={opt.value || 'all'}
             href={opt.value ? `/admin/orders?status=${opt.value}` : '/admin/orders'}
-            className={`px-4 py-2 rounded-lg text-sm font-medium border transition ${
+            className={`px-4 py-2 rounded-xl text-sm font-medium border transition ${
               status === opt.value || (!status && !opt.value)
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'border-gray-200 text-gray-600 hover:border-blue-400'
+                ? 'bg-mediumslateblue text-white border-mediumslateblue'
+                : 'border-gray-200 text-gray-600 hover:border-mediumslateblue'
             }`}
           >
             {opt.label}
@@ -52,7 +51,8 @@ export default async function AdminOrdersPage({
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {/* Bảng đơn hàng - Sửa bo góc rounded-2xl */}
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-500">
@@ -66,7 +66,7 @@ export default async function AdminOrdersPage({
           </thead>
           <tbody className="divide-y divide-gray-50">
             {orders?.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
+              <tr key={order.id} className="hover:bg-gray-50 transition">
                 <td className="px-5 py-4 font-mono text-xs">
                   #{order.id.slice(0, 8).toUpperCase()}
                 </td>

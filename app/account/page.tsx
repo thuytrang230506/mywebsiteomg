@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import AccountForm from './AccountForm'
 import OrderHistory from './OrderHistory'
 import LogoutButton from '@/components/layout/LogoutButton'
-
+export const revalidate = 0;
 export default async function AccountPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -30,7 +30,7 @@ export default async function Navbar() {
         
         {/* Logo */}
         <Link href="/" className="text-xl font-bold text-mediumslateblue">
-          Dưa chuột không cá
+          Dưa chuột không cá🥒
         </Link>
 
         {/* Search bar */}

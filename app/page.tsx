@@ -1,65 +1,76 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import ProductCard from '@/components/products/ProductCard'
 
-export default function Home() {
+export default async function HomePage() {
+  const supabase = await createClient()
+
+  // Fetch danh mục
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('*')
+    .limit(6)
+
+  // Fetch sản phẩm mới nhất
+  const { data: newProducts } = await supabase
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(8)
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main>
+      {/* Banner hero */}
+      <section className="bg-linear-to-r from-lavenderveil to-mediumslateblue text-white py-20 px-4 text-center">
+        <h1 className="text-4xl font-bold mb-4"
+        style={{textShadow: '1px 1px 2px rgba(0,0,0,0.5)'}}>
+          Chào mừng đến với Dưa chuột không cá
+        </h1>
+        <p className="text-lg mb-8 opacity-90">Ở đây có mấy con lạ</p>
+        <Link
+          href="/products"
+          className="bg-white text-mediumslateblue font-bold px-8 py-3 rounded-full hover:bg-blue-50 transition"
+        >
+          Mua đi nhé 😡
+        </Link>
+      </section>
+
+      {/* Danh mục */}
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <h2 className="text-2xl font-bold mb-6">Danh mục nổi bật</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          {categories?.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/categories/${cat.slug}`}
+              className="bg-lavendermist rounded-2xl p-4 text-center shadow-xl hover:shadow-2xl transition group"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <div className="w-12 h-12 bg-periwinkle rounded-full mx-auto mb-2 flex items-center justify-center text-2xl">
+                {cat.icon}
+              </div>
+              <span className="text-sm font-medium text-gray-700 group-hover:text-mediumslateblue transition">
+                {cat.name}
+              </span>
+            </Link>
+          ))}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Sản phẩm mới nhất */}
+      <section className="max-w-6xl mx-auto px-4 pb-16">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Sản phẩm mới nhất</h2>
+          <Link href="/products" className="text-mediumslateblue hover:underline border-collapse text-sm ">
+            Xem tất cả🌸
+          </Link>
         </div>
-      </main>
-    </div>
-  );
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {newProducts?.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
+    </main>
+  )
 }

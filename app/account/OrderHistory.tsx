@@ -1,3 +1,9 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
+import { deleteOrder } from './actions'
+
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending:   { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-700' },
   confirmed: { label: 'Đã xác nhận',  color: 'bg-blue-100 text-blue-700' },
@@ -6,7 +12,20 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'Đã hủy',       color: 'bg-red-100 text-red-700' },
 }
 
-export default function OrderHistory({ orders }: { orders: any[] }) {
+export default function OrderHistory({ orders: initialOrders }: { orders: any[] }) {
+  // Thêm State để quản lý danh sách đơn hàng (giúp xóa đơn mà không cần load lại trang)
+  const [orders, setOrders] = useState(initialOrders)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // Hàm xử lý xóa đơn hàng đã hủy
+  async function handleDelete(orderId: string) {
+    if (!confirm('Xóa đơn hàng đã hủy này?')) return
+    setDeletingId(orderId)
+    await deleteOrder(orderId)
+    setOrders((prev) => prev.filter((o) => o.id !== orderId))
+    setDeletingId(null)
+  }
+
   if (orders.length === 0) {
     return (
       <div className="bg-white rounded-2xl p-8 shadow-sm text-center text-gray-400">
@@ -21,6 +40,11 @@ export default function OrderHistory({ orders }: { orders: any[] }) {
       <div className="space-y-4">
         {orders.map((order) => {
           const status = STATUS_MAP[order.status] ?? { label: order.status, color: 'bg-gray-100 text-gray-600' }
+          
+          // Các biến kiểm tra trạng thái
+          const isCancelled = order.status === 'cancelled'
+          const isDelivered = order.status === 'delivered'
+
           return (
             <div key={order.id} className="border border-gray-100 rounded-xl p-4">
               <div className="flex justify-between items-start mb-3">
@@ -33,13 +57,27 @@ export default function OrderHistory({ orders }: { orders: any[] }) {
                     {order.total.toLocaleString('vi-VN')}₫
                   </p>
                 </div>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${status.color}`}>
-                  {status.label}
-                </span>
+                
+                {/* Khu vực trạng thái & Nút xóa */}
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${status.color}`}>
+                    {status.label}
+                  </span>
+                  
+                  {isCancelled && (
+                    <button
+                      onClick={() => handleDelete(order.id)}
+                      disabled={deletingId === order.id}
+                      className="text-xs text-red-400 hover:text-red-600 border border-red-100 px-2 py-0.5 rounded-lg hover:bg-red-50 transition disabled:opacity-50"
+                    >
+                      {deletingId === order.id ? '...' : 'Xóa'}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Danh sách sản phẩm trong đơn */}
-              <div className="space-y-1">
+              <div className="space-y-1 mb-3">
                 {order.order_items?.map((item: any) => (
                   <div key={item.id} className="flex justify-between text-sm text-gray-600">
                     <span className="truncate flex-1 mr-2">
@@ -51,6 +89,16 @@ export default function OrderHistory({ orders }: { orders: any[] }) {
                   </div>
                 ))}
               </div>
+
+              {/*Nút đánh giá khi đơn đã giao thành công */}
+              {isDelivered && (
+                <Link
+                  href={`/review/${order.id}`}
+                  className="inline-flex items-center gap-1.5 text-xs bg-yellow-50 text-yellow-700 border border-yellow-200 px-3 py-1.5 rounded-lg hover:bg-yellow-100 transition font-medium"
+                >
+                  ⭐ Đánh giá sản phẩm
+                </Link>
+              )}
             </div>
           )
         })}

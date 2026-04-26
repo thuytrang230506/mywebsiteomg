@@ -1,5 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import OrderStatusSelect from './OrderStatusSelect'
+// THÊM: Import action xóa
+import { deleteAdminOrder } from './actions'
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending:   { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-700' },
@@ -34,7 +36,7 @@ export default async function AdminOrdersPage({
     <div>
       <h1 className="text-2xl font-bold mb-6">Đơn hàng</h1>
 
-      {/* Filter theo trạng thái - Sửa màu mediumslateblue & bo góc rounded-xl */}
+      {/* Filter theo trạng thái - Giữ nguyên màu mediumslateblue & bo góc rounded-xl */}
       <div className="flex gap-2 mb-6 flex-wrap">
         {filterOptions.map((opt) => (
           <a
@@ -51,7 +53,7 @@ export default async function AdminOrdersPage({
         ))}
       </div>
 
-      {/* Bảng đơn hàng - Sửa bo góc rounded-2xl */}
+      {/* Bảng đơn hàng - Giữ nguyên bo góc rounded-2xl */}
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
@@ -62,11 +64,16 @@ export default async function AdminOrdersPage({
               <th className="px-5 py-3 font-medium">Tổng tiền</th>
               <th className="px-5 py-3 font-medium">Giao đến</th>
               <th className="px-5 py-3 font-medium">Trạng thái</th>
+              {/* THÊM: Cột hành động */}
+              <th className="px-5 py-3 font-medium text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {orders?.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50 transition">
+              <tr 
+                key={order.id} 
+                className={`hover:bg-gray-50 transition ${order.status === 'cancelled' ? 'opacity-70' : ''}`}
+              >
                 <td className="px-5 py-4 font-mono text-xs">
                   #{order.id.slice(0, 8).toUpperCase()}
                 </td>
@@ -88,6 +95,19 @@ export default async function AdminOrdersPage({
                 </td>
                 <td className="px-5 py-4">
                   <OrderStatusSelect orderId={order.id} currentStatus={order.status} />
+                </td>
+                {/* THÊM: Nút xóa chỉ dành cho đơn đã hủy */}
+                <td className="px-5 py-4 text-right">
+                  {order.status === 'cancelled' && (
+                    <form action={async () => { 'use server'; await deleteAdminOrder(order.id) }}>
+                      <button
+                        type="submit"
+                        className="text-xs text-red-500 hover:text-red-700 border border-red-100 px-2 py-1 rounded-lg hover:bg-red-50 transition"
+                      >
+                        Xóa
+                      </button>
+                    </form>
+                  )}
                 </td>
               </tr>
             ))}

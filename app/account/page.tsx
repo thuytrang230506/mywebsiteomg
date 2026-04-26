@@ -25,10 +25,10 @@ export default async function AccountPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <main className="max-w-6xl mx-auto px-4 py-8">
+    <main className="max-w-5xl mx-auto px-1 py-8">
       <h1 className="text-2xl font-bold mb-8">Tài khoản của tôi</h1>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-10">
         {/* Sidebar */}
         <div className="md:col-span-1">
           <div className="bg-white p-5 shadow-sm text-center rounded-[2rem]">

@@ -5,7 +5,7 @@ import { Roboto } from 'next/font/google';
 
 // 2. Khởi tạo font Roboto
 const roboto = Roboto({
-  weight: ['400', '500', '700'], // Các độ đậm bạn muốn dùng
+  weight: ['400', '500', '700'], //Độ đạm
   subsets: ['latin', 'vietnamese'], // Bắt buộc có vietnamese để không lỗi dấu tiếng Việt
   display: 'swap',
 });
